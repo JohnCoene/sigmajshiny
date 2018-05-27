@@ -64,6 +64,12 @@ server <- function(input, output){
             sg_edges(edges, id, source, target)
     })
 
+	# initialise "empty" visualisation
+	output$sg <- renderSigmajs({
+		sigmajs(type = "webgl") %>% # use webgl
+			sg_force()
+	})
+
 	observeEvent(input$start, {
 		sigmajsProxy("forceAtlas2") %>%
 				sg_force_start_p(worker = TRUE)
@@ -82,13 +88,13 @@ server <- function(input, output){
 		i <<- i + 1
 		j <<- j + 1
 
-		edges <- data.frame(
+		edges_add <- data.frame(
 			id = i,
 			source = sample(1:j, 1),
 			target = sample(1:j, 1)
 		)
 
-		nodes <- data.frame(
+		nodes_add <- data.frame(
 			id = i,
 			size = runif(1, 1, 5),
             color = "#B1E2A3",
@@ -96,8 +102,8 @@ server <- function(input, output){
 		)
 
 		sigmajsProxy("addNodesEdges") %>%
-			sg_add_edge_p(edges, id, source, target) %>%
-			sg_add_node_p(nodes, id, label, size, color)
+			sg_add_edge_p(edges_add, id, source, target) %>%
+			sg_add_node_p(nodes_add, id, label, size, color)
 	})
 
 	observeEvent(input$start2, {
@@ -110,11 +116,11 @@ server <- function(input, output){
 				sg_force_stop_p()
 	})
 
-ids <- as.character(1:100) # create 100 nodes
+	ids <- as.character(1:100) # create 100 nodes
 	n <- 150 # number of edges
 
 	# create edges with random delay FIRST
-	edges <- data.frame(
+	edges2 <- data.frame(
 		id = 1:n,
 		source = sample(ids, n, replace = TRUE),
 		target = sample(ids, n, replace = TRUE),
@@ -123,11 +129,11 @@ ids <- as.character(1:100) # create 100 nodes
 	)
 
 	# get source and target
-	src <- dplyr::select(edges, id = source, created_at)
-	tgt <- dplyr::select(edges, id = target, created_at)
+	src <- dplyr::select(edges2, id = source, created_at)
+	tgt <- dplyr::select(edges2, id = target, created_at)
 
 	# nodes appear at their first edge appearance
-	nodes <- src %>%
+	nodes2 <- src %>%
 		dplyr::bind_rows(tgt) %>% # bind edges source/target to have "nodes"
 		dplyr::group_by(id) %>% # find minimum by id - when node should appear
 		dplyr::summarise(
@@ -140,17 +146,11 @@ ids <- as.character(1:100) # create 100 nodes
 			color = colorRampPalette(c("#B1E2A3", "#98D3A5", "#328983", "#1C5C70", "#24C96B"))(n())
 		)
 
-	# initialise "empty" visualisation
-	output$sg <- renderSigmajs({
-		sigmajs(type = "webgl") %>% # use webgl
-			sg_force()
-	})
-
 	# add nodes and edges with delay
 	observeEvent(input$add3, {
 		sigmajsProxy("sg") %>%
-			sg_add_nodes_delay_p(nodes, appear_at, id, label, size, color, cumsum = FALSE, refresh = TRUE) %>%
-			sg_add_edges_delay_p(edges, created_at, id, source, target, cumsum = FALSE, refresh = TRUE)
+			sg_add_nodes_delay_p(nodes2, appear_at, id, label, size, color, cumsum = FALSE, refresh = TRUE) %>%
+			sg_add_edges_delay_p(edges2, created_at, id, source, target, cumsum = FALSE, refresh = TRUE)
 	})
 }
 
