@@ -44,7 +44,22 @@ ui <- navbarPage(
             column(3, actionButton("add3", "add nodes & edges"))
         ),
         sigmajsOutput("sg", height = "97vh")
-    )
+    ),
+	tabPanel(
+		"Events",
+		h4("Interact with the graph"),
+		fluidRow(
+			column(9, sigmajsOutput("sgEvents")),
+			column(3, p("There are plenty more events to capture, all official events are available:"),
+				a(href = "https://github.com/jacomyal/sigma.js/wiki/Events-API", "official documentation"),
+				h4("Background right clicked"), verbatimTextOutput("bgClicked")
+			)
+		),
+		fluidRow(
+			column(3, h4("Node clicked"), verbatimTextOutput("nodeClicked")),
+			column(3, h4("Node hovered"), verbatimTextOutput("nodeHovered"))
+		)
+	)
 )
 
 server <- function(input, output){
@@ -69,6 +84,12 @@ server <- function(input, output){
 		sigmajs(type = "webgl") %>% # use webgl
 			sg_force()
 	})
+
+    output$sgEvents <- renderSigmajs({
+        sigmajs() %>%
+            sg_nodes(nodes, id, label, size, color) %>%
+            sg_edges(edges, id, source, target)
+    })
 
 	observeEvent(input$start, {
 		sigmajsProxy("forceAtlas2") %>%
@@ -152,6 +173,18 @@ server <- function(input, output){
 			sg_add_nodes_delay_p(nodes2, appear_at, id, label, size, color, cumsum = FALSE, refresh = TRUE) %>%
 			sg_add_edges_delay_p(edges2, created_at, id, source, target, cumsum = FALSE, refresh = TRUE)
 	})
+
+    output$nodeClicked <- renderPrint({
+        input$sgEvents_click_node
+    })
+
+    output$nodeHovered <- renderPrint({
+        input$sgEvents_over_node
+    })
+
+    output$bgClicked <- renderPrint({
+        input$sgEvents_right_click_stage
+    })
 }
 
 shinyApp(ui, server)
