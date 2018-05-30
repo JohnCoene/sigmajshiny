@@ -15,7 +15,13 @@ ui <- navbarPage(
                 )
             ),
             column(1)
-        )
+        ),
+		fluidRow(
+			column(1),
+			column(1, h4(tags$a("Docs"), href = "http://sigmajs.john-coene.com/", target = "_blank")),
+			column(2, h4(tags$a("App source code"), href = "https://github.com/JohnCoene/sigmajshiny", target = "_blank")),
+			column(8)
+		)
     ),
     tabPanel(
         "forceAtlas2",
