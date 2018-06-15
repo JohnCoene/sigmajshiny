@@ -10,8 +10,10 @@ ui <- navbarPage(
         fluidRow(
             column(1),
             column(7, h1("sigmajs*"), br(), h4("for shiny*")),
-            column(3, img(src = "https://raw.githubusercontent.com/JohnCoene/sigmajs/master/man/figures/logo.png?token=AHeIxJYJW3eqBk4LRBFIPmv--xy0YZr2ks5bFBOwwA%3D%3D",
-                class = "img-responsive"
+            column(3, 
+				img(
+					src = "http://sigmajs.john-coene.com/reference/figures/logo.png",
+                	class = "img-responsive"
                 )
             ),
             column(1)
