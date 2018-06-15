@@ -44,6 +44,16 @@ ui <- navbarPage(
             column(12, sigmajsOutput("addNodesEdges", height = "97vh"))
         )
     ),
+	tabPanel(
+		"Drop",
+		fluidRow(
+			column(2, actionButton("dropNode", "drop a node")),
+			column(2, actionButton("dropEdge", "drop an edge"))
+		),
+		fluidRow(
+			sigmajsOutput("dropNodesEdges")
+		)
+	),
     tabPanel(
         "Delay",
         fluidRow(
@@ -191,6 +201,36 @@ server <- function(input, output){
     output$bgClicked <- renderPrint({
         input$sgEvents_right_click_stage
     })
+
+	output$dropNodesEdges <- renderSigmajs({
+        sigmajs() %>%
+            sg_nodes(nodes, id, size, color) %>%
+            sg_edges(edges, id, source, target)
+	})
+
+	dropped_nodes <- NULL
+
+	observeEvent(input$dropNode, {
+
+		id <- sample(nodes$id[!nodes$id %in% dropped_nodes], 1)
+
+		dropped_nodes <<- id
+
+		sigmajsProxy("dropNodesEdges") %>%
+			sg_drop_node_p(id)
+	})
+
+	dropped_edges <- NULL
+
+	observeEvent(input$dropEdge, {
+
+		id <- sample(edges$id[!edges$id %in% dropped_edges], 1)
+
+		dropped_edges <<- id
+
+		sigmajsProxy("dropNodesEdges") %>%
+			sg_drop_edge_p(id)
+	})
 }
 
 shinyApp(ui, server)
