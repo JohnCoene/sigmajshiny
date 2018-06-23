@@ -63,6 +63,13 @@ ui <- navbarPage(
         ),
         sigmajsOutput("sg", height = "97vh")
     ),
+    tabPanel(
+        "Filter",
+        fluidRow(
+            column(3, sliderInput("slider", "Filter nodes", value = 0, min = 0, max = 200))
+        ),
+        sigmajsOutput("filter", height = "97vh")
+    ),
 	tabPanel(
 		"Events",
 		h4("Interact with the graph"),
@@ -109,6 +116,17 @@ server <- function(input, output){
             sg_edges(edges, id, source, target)
     })
 
+	filter_nodes <- sg_make_nodes(100)
+	filter_edges <- sg_make_edges(nodes)
+	filter_nodes$size <- runif(100, 1, 200)
+
+	output$filter <- renderSigmajs({
+        sigmajs() %>%
+            sg_nodes(filter_nodes, id, size, color) %>%
+            sg_edges(filter_edges, id, source, target) %>%
+			sg_layout()
+	})
+
 	observeEvent(input$start, {
 		sigmajsProxy("forceAtlas2") %>%
 				sg_force_start_p(worker = TRUE)
@@ -116,7 +134,7 @@ server <- function(input, output){
 
 	observeEvent(input$stop, {
 		sigmajsProxy("forceAtlas2") %>%
-				sg_force_stop_p()
+				sg_force_kill_p()
 	})
 
 	i <- nrow(edges)
@@ -232,6 +250,11 @@ server <- function(input, output){
 
 		sigmajsProxy("dropNodesEdges") %>%
 			sg_drop_edge_p(id)
+	})
+
+	observeEvent(input$slider, {
+		sigmajsProxy("filter") %>%
+			sg_filter_gt_p(input$slider, "size")
 	})
 }
 
