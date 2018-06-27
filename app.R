@@ -1,5 +1,7 @@
+library(DT)
 library(shiny)
 library(sigmajs)
+library(crosstalk)
 library(shinythemes)
 
 ui <- navbarPage(
@@ -40,7 +42,7 @@ ui <- navbarPage(
         fluidRow(
             column(4, actionButton("add", "Add node & edge")),
             column(4, actionButton("start2", "Start force")),
-            column(4, actionButton("stop2", "Stop force"))
+            column(4, actionButton("stop2", "Kill force"))
         ),
         fluidRow(
             column(12, sigmajsOutput("addNodesEdges", height = "97vh"))
@@ -71,6 +73,19 @@ ui <- navbarPage(
         sigmajsOutput("filter", height = "97vh")
     ),
 	tabPanel(
+		"Crosstalk",
+		fluidRow(
+			column(
+				DTOutput("dtNodes"),
+				width = 4
+			),
+			column(
+				width = 8,
+				sigmajsOutput("sgCrosstalk")
+			)
+		)
+	),
+	tabPanel(
 		"Events",
 		h4("Interact with the graph"),
 		fluidRow(
@@ -87,7 +102,7 @@ ui <- navbarPage(
 	)
 )
 
-server <- function(input, output){
+server <- function(input, output, session){
 
     nodes <- sg_make_nodes(50)
     edges <- sg_make_edges(nodes, 75)
@@ -170,7 +185,7 @@ server <- function(input, output){
 
 	observeEvent(input$stop2, {
 		sigmajsProxy("addNodesEdges") %>%
-				sg_force_stop_p()
+				sg_force_kill_p()
 	})
 
 	ids <- as.character(1:100) # create 100 nodes
@@ -225,7 +240,8 @@ server <- function(input, output){
 	output$dropNodesEdges <- renderSigmajs({
         sigmajs() %>%
             sg_nodes(nodes, id, size, color) %>%
-            sg_edges(edges, id, source, target)
+            sg_edges(edges, id, source, target) %>%
+			sg_layout()
 	})
 
 	dropped_nodes <- NULL
@@ -256,6 +272,20 @@ server <- function(input, output){
 		sigmajsProxy("filter") %>%
 			sg_filter_gt_p(input$slider, "size")
 	})
+
+	sd <- SharedData$new(nodes, key = nodes$id)
+
+	output$dtNodes <- renderDT({
+		DT::datatable(sd)
+	}, server = FALSE)
+
+	output$sgCrosstalk <- renderSigmajs({
+		sigmajs() %>%
+		  sg_nodes(sd, id, label, size, color) %>%
+		  sg_edges(edges, id, source, target) %>%
+		  sg_layout()
+	})
+
 }
 
 shinyApp(ui, server)
