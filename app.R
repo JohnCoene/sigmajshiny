@@ -31,7 +31,9 @@ ui <- navbarPage(
         "forceAtlas2",
         fluidRow(
             column(1, actionButton("start", "Start layout")),
-            column(1, actionButton("stop", "Stop layout"))
+			column(1, p("")),
+            column(1, actionButton("stop", "Stop layout")),
+			column(9)
         ),
         fluidRow(
             column(12, sigmajsOutput("forceAtlas2", height = "97vh"))
@@ -55,7 +57,7 @@ ui <- navbarPage(
 			column(2, actionButton("dropEdge", "drop an edge"))
 		),
 		fluidRow(
-			sigmajsOutput("dropNodesEdges")
+			sigmajsOutput("dropNodesEdges", height = "97vh")
 		)
 	),
     tabPanel(
@@ -128,7 +130,8 @@ server <- function(input, output, session){
     output$sgEvents <- renderSigmajs({
         sigmajs() %>%
             sg_nodes(nodes, id, label, size, color) %>%
-            sg_edges(edges, id, source, target)
+            sg_edges(edges, id, source, target) %>%
+			sg_layout()
     })
 
 	filter_nodes <- sg_make_nodes(100)
