@@ -6,7 +6,8 @@ library(shinythemes)
 
 ui <- navbarPage(
     "sigmajs",
-    theme = shinytheme("paper"),
+	inverse = FALSE,
+    theme = shinytheme("flatly"),
     tabPanel(
         "home",
         fluidRow(
@@ -22,17 +23,17 @@ ui <- navbarPage(
         ),
 		fluidRow(
 			column(1),
-			column(1, h4(tags$a("Docs", href = "http://sigmajs.john-coene.com/", target = "_blank"))),
-			column(2, h4(tags$a("App source code", href = "https://github.com/JohnCoene/sigmajshiny", target = "_blank"))),
+			column(1, h4(tags$a("Docs", href = "http://sigmajs.john-coene.com/", target = "_blank", class = "btn btn-primary"))),
+			column(2, h4(tags$a("App source code", href = "https://github.com/JohnCoene/sigmajshiny", target = "_blank", class = "btn btn-default"))),
 			column(8)
 		)
     ),
     tabPanel(
         "forceAtlas2",
         fluidRow(
-            column(1, actionButton("start", "Start layout")),
+            column(1, actionButton("start", "Start layout", class = "btn btn-success", icon = icon("play"))),
 			column(1, p("")),
-            column(1, actionButton("stop", "Stop layout")),
+            column(1, actionButton("stop", "Stop layout", class = "btn btn-danger", icon = icon("stop"))),
 			column(9)
         ),
         fluidRow(
@@ -42,9 +43,10 @@ ui <- navbarPage(
     tabPanel(
         "Add",
         fluidRow(
-            column(4, actionButton("add", "Add node & edge")),
-            column(4, actionButton("start2", "Start force")),
-            column(4, actionButton("stop2", "Kill force"))
+            column(2, actionButton("add", "Add node & edge", , class = "btn btn-primary", icon = icon("plus"))),
+            column(2, actionButton("start2", "Start force", class = "btn btn-success", icon = icon("play"))),
+            column(2, actionButton("stop2", "Kill force", class = "btn btn-danger", icon = icon("heartbeat"))),
+			column(6)
         ),
         fluidRow(
             column(12, sigmajsOutput("addNodesEdges", height = "97vh"))
@@ -53,8 +55,8 @@ ui <- navbarPage(
 	tabPanel(
 		"Drop",
 		fluidRow(
-			column(2, actionButton("dropNode", "drop a node")),
-			column(2, actionButton("dropEdge", "drop an edge"))
+			column(2, actionButton("dropNode", "Drop a node", class = "btn btn-danger", icon = icon("times"))),
+			column(2, actionButton("dropEdge", "Drop an edge", class = "btn btn-danger", icon = icon("times-circle-o")))
 		),
 		fluidRow(
 			sigmajsOutput("dropNodesEdges", height = "97vh")
@@ -63,7 +65,7 @@ ui <- navbarPage(
     tabPanel(
         "Delay",
         fluidRow(
-            column(3, actionButton("add3", "add nodes & edges"))
+            column(3, actionButton("add3", "Add nodes & edges", , class = "btn btn-success", icon = icon("plus")))
         ),
         sigmajsOutput("sg", height = "97vh")
     ),
