@@ -12,7 +12,23 @@ ui <- navbarPage(
         "home",
         fluidRow(
             column(1),
-            column(7, h1("sigmajs*"), br(), h4("for shiny*")),
+            column(7, 
+				fluidRow(
+					column(12, h1("sigmajs*"), br(), h4("*for shiny"), br())
+				),
+				fluidRow(
+					column(1, 
+						img(
+							src = "http://twinetverse.john-coene.com/reference/figures/logo.png",
+							class = "img-responsive"
+						)
+					),
+					column(5,
+						p("Part of the", a("twinetverse,", href = "http://twinetverse.john-coene.com/", target = "_blank"), "a universe of packages for Twitter network analysis and visualisations.")
+					),
+					column(6)
+				)
+			),
             column(3, 
 				img(
 					src = "http://sigmajs.john-coene.com/reference/figures/logo.png",
