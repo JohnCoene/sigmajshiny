@@ -1,4 +1,5 @@
 library(DT)
+library(dplyr)
 library(shiny)
 library(sigmajs)
 library(crosstalk)
@@ -291,7 +292,8 @@ server <- function(input, output, session){
 
 	observeEvent(input$slider, {
 		sigmajsProxy("filter") %>%
-			sg_filter_gt_p(input$slider, "size")
+			sg_filter_undo_p("filter") %>% 
+			sg_filter_gt_p(input$slider, "size", name = "filter")
 	})
 
 	sd <- SharedData$new(nodes, key = nodes$id)
