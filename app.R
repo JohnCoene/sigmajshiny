@@ -69,16 +69,22 @@ ui <- navbarPage(
             column(12, sigmajsOutput("addNodesEdges", height = "97vh"))
         )
     ),
-	tabPanel(
-		"Drop",
-		fluidRow(
-			column(2, actionButton("dropNode", "Drop a node", class = "btn btn-danger", icon = icon("times"))),
-			column(2, actionButton("dropEdge", "Drop an edge", class = "btn btn-danger", icon = icon("times-circle-o")))
+		tabPanel(
+			"Change",
+			p("Change any data on the fly with", code("sg_change_*_p"), ". Note that the graph is not redrawn."),
+			selectInput("color", "Node color", choices = c("black", "orange", "red", "blue")),
+			sigmajsOutput("change", height = "97vh")
 		),
-		fluidRow(
-			sigmajsOutput("dropNodesEdges", height = "97vh")
-		)
-	),
+		tabPanel(
+			"Drop",
+			fluidRow(
+				column(2, actionButton("dropNode", "Drop a node", class = "btn btn-danger", icon = icon("times"))),
+				column(2, actionButton("dropEdge", "Drop an edge", class = "btn btn-danger", icon = icon("times-circle-o")))
+			),
+			fluidRow(
+				sigmajsOutput("dropNodesEdges", height = "97vh")
+			)
+		),
     tabPanel(
         "Delay",
         fluidRow(
@@ -133,6 +139,21 @@ server <- function(input, output, session){
             sg_nodes(nodes, id, size, color) %>%
             sg_edges(edges, id, source, target)
     })
+
+    output$change <- renderSigmajs({
+        sigmajs() %>%
+            sg_nodes(nodes, id, size, color) %>%
+            sg_edges(edges, id, source, target) %>% 
+						sg_layout()
+    })
+
+		observeEvent(input$color, {
+
+			nodes_color <- data.frame(color = rep(input$color, nrow(nodes)))
+
+			sigmajsProxy("change") %>% 
+				sg_change_nodes_p(nodes_color, color, "color")
+		})
 
     output$addNodesEdges <- renderSigmajs({
         sigmajs() %>%
